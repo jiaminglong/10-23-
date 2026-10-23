@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>棋牌游戏平台 - 旗舰版</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
+        #auth-section { max-width: 400px; margin: 30px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .tab { display: flex; margin-bottom: 15px; border-bottom: 1px solid #ccc; }
+        .tab button { flex: 1; padding: 10px; background: none; border: none; font-size: 16px; cursor: pointer; color: #666; }
+        .tab button.active { border-bottom: 2px solid #007bff; color: #007bff; font-weight: bold; }
+        input, textarea, select { width: 100%; padding: 10px; margin: 6px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; font-family: inherit; font-size: 14px;}
+        .btn { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 5px; font-size: 16px; margin-top: 10px; cursor: pointer; }
+        .btn:hover { background: #0056b3; }
+        .hidden { display: none !important; }
+        .header-top { display: flex; justify-content: space-between; padding: 10px 15px; background: #fff; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 10; }
+        .header-top span { font-size: 14px; color: #007bff; cursor: pointer; }
+        #main-section { width: 100%; max-width: 600px; margin: 0 auto; background: #f0f2f5; min-height: 100vh; padding-bottom: 60px; }
+        .profile-card { background: #fff; padding: 20px; display: flex; align-items: center; border-bottom: 1px solid #eee; }
+        .avatar { width: 70px; height: 70px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 12px; overflow: hidden; cursor: pointer; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .post-box, .friend-box, .admin-box, .mail-box { background: #fff; padding: 15px; margin: 10px 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .post-box textarea { height: 80px; resize: none; }
+        .post-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .upload-btn { background: #e9ecef; color: #333; border: none; padding: 8px 12px; border-radius: 5px; font-size: 13px; cursor: pointer; }
+        .post-card { background: #fff; border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .post-header { display: flex; align-items: center; margin-bottom: 10px; }
+        .post-avatar { width: 40px; height: 40px; border-radius: 50%; background: #ddd; margin-right: 10px; display: flex; justify-content: center; align-items: center; font-size: 12px; overflow: hidden; }
+        .post-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .post-meta h4 { margin: 0; font-size: 15px; }
+        .post-meta span { font-size: 12px; color: #888; }
+        .post-content { font-size: 15px; margin-bottom: 10px; line-height: 1.5; word-break: break-all; }
+        .media-box { display: flex; gap: 5px; margin-bottom: 10px; overflow-x: auto; }
+        .media-box img { width: 80px; height: 80px; border-radius: 5px; object-fit: cover; }
+        .media-box video { width: 160px; height: 90px; border-radius: 5px; background: #000; }
+        .post-footer { display: flex; justify-content: space-between; border-top: 1px solid #eee; padding-top: 10px; font-size: 13px; color: #555; flex-wrap: wrap; }
+        .action-btn { cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .action-btn.active { color: #e0245e; }
+        .comment-section { margin-top: 10px; background: #f8f9fa; padding: 10px; border-radius: 5px; display: none; }
+        .comment-item { font-size: 13px; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .comment-input-area { display: flex; gap: 5px; margin-top: 10px; }
+        .comment-input-area input { margin: 0; padding: 5px; flex: 1; }
+        .comment-input-area button { padding: 5px 10px; background: #007bff; color: #fff; border: none; border-radius: 5px; }
+        .friend-tabs { display: flex; background: #fff; margin-bottom: 10px; }
+        .friend-tabs div { flex: 1; text-align: center; padding: 12px; font-size: 15px; cursor: pointer; border-bottom: 2px solid transparent; }
+        .friend-tabs div.active { border-bottom-color: #007bff; color: #007bff; font-weight: bold; }
+        .friend-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
+        .friend-info { display: flex; align-items: center; }
+        .friend-avatar { width: 40px; height: 40px; border-radius: 50%; background: #ddd; margin-right: 10px; display: flex; justify-content: center; align-items: center; font-size: 12px; overflow: hidden; }
+        .friend-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .friend-btns button { padding: 5px 10px; font-size: 12px; border: none; border-radius: 3px; cursor: pointer; }
+        .btn-accept { background: #28a745; color: white; }
+        .btn-chat { background: #007bff; color: white; }
+        #chat-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 100; display: flex; flex-direction: column; }
+        .chat-header { background: #fff; padding: 15px; display: flex; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .chat-header span { font-size: 18px; font-weight: bold; }
+        .chat-header .back { cursor: pointer; font-size: 20px; margin-right: 15px; }
+        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; }
+        .msg { max-width: 70%; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 14px; word-break: break-all; }
+        .msg.me { background: #007bff; color: #fff; margin-left: auto; border-bottom-right-radius: 0; }
+        .msg.friend { background: #fff; color: #333; margin-right: auto; border-bottom-left-radius: 0; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .chat-input-area { display: flex; padding: 10px; background: #fff; border-top: 1px solid #eee; }
+        .chat-input-area input { flex: 1; margin: 0; padding: 10px; border-radius: 20px; border: 1px solid #ddd; }
+        .chat-input-area button { margin-left: 10px; padding: 0 20px; border-radius: 20px; border: none; background: #007bff; color: white; }
+        .game-page { text-align: center; padding: 10px 0; background: #f0f2f5; min-height: 100vh; }
+        .game-header { text-align: left; padding: 0 20px; margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 5px;}
+        .game-info { margin-top: 10px; font-size: 18px; font-weight: bold; color: #333; }
+        .game-coins { margin-top: 5px; font-size: 15px; color: goldenrod; }
+        #gomoku-container { background: #e8c396; display: inline-block; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        #chessBoard { display: block; touch-action: none; margin: 0 auto; }
+        #xiangqi-container { width: 360px; height: 400px; background: #e8c396; display: inline-block; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: relative; }
+        .xiangqi-board { display: grid; grid-template-columns: repeat(9, 1fr); grid-template-rows: repeat(10, 1fr); width: 100%; height: 100%; position: relative; }
+        .xiangqi-cell { position: relative; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .xiangqi-cell::before { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: #333; }
+        .xiangqi-cell::after { content: ''; position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: #333; }
+        .xiangqi-cell .piece { width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; position: relative; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .piece.red { background: #fff; color: #d32f2f; border: 2px solid #d32f2f; }
+        .piece.black { background: #fff; color: #333; border: 2px solid #333; }
+        .piece.selected { box-shadow: 0 0 10px yellow; transform: scale(1.1); }
+        #tictactoe-container { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 5px; background: #333; padding: 5px; border-radius: 10px; margin: 0 auto; }
+        .ttt-cell { background: #fff; display: flex; justify-content: center; align-items: center; font-size: 50px; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; max-width: 600px; left: 50%; transform: translateX(-50%); background: #fff; display: flex; border-top: 1px solid #eee; z-index: 10; }
+        .nav-item { flex: 1; text-align: center; padding: 10px 0; font-size: 12px; color: #666; cursor: pointer; }
+        .nav-item.active { color: #007bff; }
+        .rank-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; background: #f1c40f; color: #333; }
+        .rank-list-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; background: #fff; }
+        .admin-tabs { display: flex; background: #fff; }
+        .admin-tabs div { flex: 1; text-align: center; padding: 10px; cursor: pointer; border-bottom: 2px solid transparent; font-size: 14px; }
+        .admin-tabs div.active { border-bottom-color: #dc3545; color: #dc3545; font-weight: bold; }
+        .admin-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 13px; }
+        .code-box { background: #e8f4ff; color: #0056b3; padding: 5px; border-radius: 5px; font-family: monospace; margin-top: 5px; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 200; }
+        .modal-content { background: #fff; padding: 20px; border-radius: 10px; width: 85%; max-width: 400px; max-height: 80vh; overflow-y: auto; }
+        .modal-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+        .close-btn { float: right; cursor: pointer; color: #888; font-size: 20px; line-height: 20px; }
+        .mail-item { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .mail-item h4 { margin: 0 0 5px 0; font-size: 15px; color: #007bff; }
+        .mail-item p { margin: 0; font-size: 13px; color: #555; }
+        .mail-item span { font-size: 11px; color: #999; }
+        .room-box { text-align: center; padding: 20px; background: #fff; border-radius: 10px; margin: 15px; }
+        .room-code { font-size: 32px; font-weight: bold; color: #e83e8c; letter-spacing: 5px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <!-- 登录注册 -->
+    <div id="auth-section">
+        <div class="tab"><button id="tab-login" class="active" onclick="switchTab('login')">登录</button><button id="tab-register" onclick="switchTab('register')">注册</button></div>
+        <div id="login-form"><input type="text" id="login-name" placeholder="输入昵称 / QQ / 手机号"><input type="password" id="login-pass" placeholder="输入密码"><button class="btn" onclick="handleLogin()">登录</button><p style="text-align:center; font-size:13px; color:#007bff; cursor:pointer; margin-top:10px;" onclick="showForgotPassword()">忘记密码？</p></div>
+        <div id="register-form" class="hidden"><input type="text" id="reg-name" placeholder="输入名字（不可重复）"><input type="password" id="reg-pass" placeholder="输入密码"><input type="password" id="reg-pass2" placeholder="确认密码"><input type="text" id="reg-qq" placeholder="选填：QQ号或手机号"><button class="btn" onclick="handleRegister()">注册</button></div>
+    </div>
+
+    <!-- 主界面 -->
+    <div id="main-section" class="hidden">
+        <div class="header-top">
+            <span id="page-title">我的</span>
+            <div>
+                <span onclick="showSettings()" style="margin-right: 15px;">⚙️ 设置</span>
+                <span onclick="showMailbox()">✉️ 邮箱(<span id="mail-count">0</span>)</span>
+            </div>
+        </div>
+
+        <!-- 我的页面 -->
+        <div id="page-my" class="page-content">
+            <div class="profile-card">
+                <div class="avatar" id="avatar-display" onclick="uploadAvatar()">点击上传</div>
+                <div class="info" style="margin-left:15px;">
+                    <h2 id="display-name" style="margin:0 0 5px 0; font-size:20px;">用户</h2>
+                    <p style="color:goldenrod; font-weight:bold; font-size:16px; margin:0;">🪙 金币: <span id="display-coins">0</span></p>
+                    <p style="color:#555; font-size:14px; margin:5px 0 0 0;">⭐ 段位: <span id="display-rank" class="rank-badge">新手</span></p>
+                </div>
+            </div>
+            <div style="text-align:center; margin-top:20px; padding: 0 20px;">
+                <button class="btn" style="background:#28a745;" onclick="showGameModeModal('gomoku')">开始五子棋</button>
+                <button class="btn" style="background:#e67e22; margin-top: 10px;" onclick="showGameModeModal('xiangqi')">开始中国象棋</button>
+                <button class="btn" style="background:#17a2b8; margin-top: 10px;" onclick="startTicTacToe()">开始井字棋</button>
+                <button class="btn" style="background:#6f42c1; margin-top: 10px;" onclick="switchNav('rank')">🏆 查看排行榜</button>
+                <button class="btn" style="background:#dc3545; margin-top: 10px; display: none;" id="btn-admin" onclick="switchNav('admin')">👑 进入管理后台</button>
+                <button class="btn" style="background:#6c757d; margin-top: 10px;" onclick="logout()">退出登录</button>
+            </div>
+        </div>
+
+        <!-- 论坛页面 -->
+        <div id="page-forum" class="page-content hidden">
+            <div class="post-box"><textarea id="post-content-input" placeholder="分享你的想法... (最多200字)"></textarea><div class="post-actions"><div><button class="upload-btn" onclick="uploadPostImage()">📷 图片</button><button class="upload-btn" onclick="uploadPostVideo()">🎥 视频</button><span id="media-count" style="font-size:12px; color:#888; margin-left:5px;">0/3</span></div><button class="btn" style="width:auto; padding:8px 20px; margin:0;" onclick="createPost()">发布</button></div><div id="preview-media" class="media-box" style="margin-top:10px;"></div></div>
+            <div id="post-list-container" style="padding: 0 15px;"></div>
+        </div>
+
+        <!-- 好友页面 -->
+        <div id="page-friends" class="page-content hidden">
+            <div class="friend-tabs"><div id="tab-friend-list" class="active" onclick="switchFriendTab('list')">我的好友</div><div id="tab-friend-add" onclick="switchFriendTab('add')">添加好友</div><div id="tab-friend-requests" onclick="switchFriendTab('requests')">新朋友</div></div>
+            <div id="friend-list-container" class="friend-box"></div>
+            <div id="friend-add-container" class="friend-box hidden"><input type="text" id="search-friend-input" placeholder="输入好友的ID或名字"><button class="btn" onclick="searchFriend()">搜索</button><div id="search-result" style="margin-top:15px;"></div></div>
+            <div id="friend-requests-container" class="friend-box hidden"></div>
+        </div>
+
+        <!-- 排行榜页面 -->
+        <div id="page-rank" class="page-content hidden">
+            <div class="admin-box"><h3 style="margin-top:0;">🏆 积分排行榜</h3><div id="rank-coins-list"></div></div>
+        </div>
+
+        <!-- 管理后台页面 -->
+        <div id="page-admin" class="page-content hidden">
+            <div class="admin-box">
+                <h3 style="margin-top:0; color:#dc3545;">👑 作者管理后台</h3>
+                <div class="admin-tabs">
+                    <div id="admin-tab-users" class="active" onclick="switchAdminTab('users')">玩家管理</div>
+                    <div id="admin-tab-codes" onclick="switchAdminTab('codes')">兑换码</div>
+                    <div id="admin-tab-mail" onclick="switchAdminTab('mail')">发邮件</div>
+                    <div id="admin-tab-reports" onclick="switchAdminTab('reports')">举报处理</div>
+                </div>
+                <div id="admin-users-container" style="margin-top:15px;"><div id="admin-user-list"></div></div>
+                <div id="admin-codes-container" class="hidden" style="margin-top:15px;"><input type="number" id="code-coins" placeholder="金币数量（如 1000）"><input type="number" id="code-times" placeholder="可用次数（如 1）"><button class="btn" style="background:#17a2b8;" onclick="generateCode()">生成兑换码</button><div id="code-list" style="margin-top:15px;"></div></div>
+                <div id="admin-mail-container" class="hidden" style="margin-top:15px;"><input type="text" id="mail-title" placeholder="邮件标题"><textarea id="mail-content" placeholder="邮件内容/奖励文字" style="height:60px;"></textarea><input type="text" id="mail-target" placeholder="收件人（填名字或输入 all 全服发）"><button class="btn" style="background:#28a745;" onclick="sendGlobalMail()">发送邮件</button></div>
+                <div id="admin-reports-container" class="hidden" style="margin-top:15px;"><div id="report-list"></div></div>
+            </div>
+        </div>
+
+        <!-- 五子棋页面 -->
+        <div id="page-gomoku" class="game-page hidden">
+            <div class="game-header">
+                <button class="btn" style="width: auto; padding: 8px 15px; margin: 0; background: #6c757d;" onclick="switchNav('my')">⬅️ 返回主页</button>
+                <button class="btn" id="gomoku-pvp-btn" style="width: auto; padding: 8px 15px; margin: 0; background: #e83e8c;" onclick="toggleGomokuPvP()">双人同屏：关</button>
+                <span id="gomoku-room-tag" style="color:#e83e8c; font-weight:bold; margin-left:10px;"></span>
+            </div>
+            <div id="gomoku-container"><canvas id="chessBoard" width="360" height="360"></canvas></div>
+            <div class="game-info" id="gomoku-status">你的回合（黑棋）</div>
+            <div class="game-coins">当前金币: <span id="gomokuCoins">0</span> | 积分: <span id="gomokuScore">0</span></div>
+            <button class="btn" style="width: auto; padding: 10px 40px; margin: 15px auto 0 auto;" onclick="resetGomoku()">重新开始</button>
+        </div>
+
+        <!-- 中国象棋页面 -->
+        <div id="page-xiangqi" class="game-page hidden">
+            <div class="game-header">
+                <button class="btn" style="width: auto; padding: 8px 15px; margin: 0; background: #6c757d;" onclick="switchNav('my')">⬅️ 返回主页</button>
+                <button class="btn" id="xiangqi-pvp-btn" style="width: auto; padding: 8px 15px; margin: 0; background: #e83e8c;" onclick="toggleXiangqiPvP()">双人同屏：关</button>
+                <span id="xiangqi-room-tag" style="color:#e83e8c; font-weight:bold; margin-left:10px;"></span>
+            </div>
+            <div id="xiangqi-container"><div class="xiangqi-board" id="xiangqiBoard"></div></div>
+            <div class="game-info" id="xiangqi-status">红方走棋（你）</div>
+            <div class="game-coins">当前金币: <span id="xiangqiCoins">0</span> | 积分: <span id="xiangqiScore">0</span></div>
+            <button class="btn" style="width: auto; padding: 10px 40px; margin: 15px auto 0 auto;" onclick="resetXiangqi()">重新开始</button>
+        </div>
+
+        <!-- 井字棋页面 -->
+        <div id="page-tictactoe" class="game-page hidden">
+            <div class="game-header"><button class="btn" style="width: auto; padding: 8px 15px; margin: 0; background: #6c757d;" onclick="switchNav('my')">⬅️ 返回主页</button></div>
+            <div id="tictactoe-container"></div>
+            <div class="game-info" id="ttt-status">你的回合（X）</div>
+            <div class="game-coins">当前金币: <span id="tttCoins">0</span> | 积分: <span id="tttScore">0</span></div>
+            <button class="btn" style="width: auto; padding: 10px 40px; margin: 15px auto 0 auto;" onclick="resetTicTacToe()">重新开始</button>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchNav('my')">🏠 我的</div>
+            <div class="nav-item" onclick="switchNav('forum')">📝 论坛</div>
+            <div class="nav-item" onclick="switchNav('friends')">👥 好友</div>
+            <div class="nav-item" onclick="alert('消息中心开发中')">💬 消息</div>
+        </div>
+    </div>
+
+    <!-- 聊天窗口 -->
+    <div id="chat-window" class="hidden">
+        <div class="chat-header"><span class="back" onclick="closeChat()">⬅️</span><span id="chat-with-name">好友名字</span></div>
+        <div class="chat-messages" id="chat-messages-container"></div>
+        <div class="chat-input-area"><input type="text" id="chat-input" placeholder="输入消息..."><button onclick="sendMessage()">发送</button></div>
+    </div>
+
+    <!-- 通用模态框 -->
+    <div id="modal-container" class="modal hidden">
+        <div class="modal-content" id="modal-content-body"></div>
+    </div>
+</div>
+
+<script>
+    // ================= 防崩溃保护机制 =================
+    window.onerror = function(message, source, lineno, colno, error) {
+        alert("系统发生错误:\n" + message + "\n行号: " + lineno + "\n请截图发给开发者修复。");
+        return false;
+    };
+
+    // ================= 数据初始化 =================
+    let usersDB, postsDB, codesDB, reportsDB, roomsDB, currentUser;
+    try {
+        usersDB = JSON.parse(localStorage.getItem('usersDB')) || [];
+        postsDB = JSON.parse(localStorage.getItem('postsDB')) || [];
+        codesDB = JSON.parse(localStorage.getItem('codesDB')) || [];
+        reportsDB = JSON.parse(localStorage.getItem('reportsDB')) || [];
+        roomsDB = JSON.parse(localStorage.getItem('roomsDB')) || {};
+        currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+    } catch (e) {
+        console.warn("LocalStorage 异常，已重置", e);
+        usersDB = []; postsDB = []; codesDB = []; reportsDB = []; roomsDB = {}; currentUser = null;
+    }
+
+    // 初始化作者账号
+    let adminUser = usersDB.find(u => u.name === 'jiaminglong');
+    if (!adminUser) {
+        usersDB.push({ id: 'admin', name: 'jiaminglong', password: '20120404q', role: 'author', coins: 999999, stars: 0, score: 0, qq: '无', avatar: 'default.png', friends: [], friendRequests: [], chats: [], mailbox: [] });
+    } else {
+        adminUser.password = '20120404q'; adminUser.role = 'author';
+    }
+    try { localStorage.setItem('usersDB', JSON.stringify(usersDB)); } catch(e) {}
+
+    // 统一数据格式
+    usersDB.forEach(u => {
+        if(!u.friends) u.friends = []; if(!u.friendRequests) u.friendRequests = []; if(!u.chats) u.chats = {};
+        if(u.stars === undefined) u.stars = 0; if(u.score === undefined) u.score = 0; if(!u.mailbox) u.mailbox = []; if(!u.role) u.role = 'player';
+        u.coins = parseInt(u.coins) || 0; // 【修复】强制转换为数字
+        if (u.coins > 99999999) u.coins = 99999999; // 金币上限
+    });
+    
+    try {
+        if (currentUser) { let latestUser = usersDB.find(u => u.id === currentUser.id); if(latestUser) currentUser = latestUser; showSection('main-section'); } else { showSection('auth-section'); }
+    } catch(e) { alert("初始化错误: " + e.message); }
+
+    function showSection(id) { document.getElementById('auth-section').classList.add('hidden'); document.getElementById('main-section').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); if(id === 'main-section') switchNav('my'); }
+    function saveDB() { 
+        // 【修复】保存前强制转换金币为数字
+        currentUser.coins = parseInt(currentUser.coins) || 0;
+        if (currentUser.coins > 99999999) currentUser.coins = 99999999;
+        let idx = usersDB.findIndex(u => u.id === currentUser.id); 
+        if (idx !== -1) usersDB[idx] = currentUser; 
+        try { localStorage.setItem('usersDB', JSON.stringify(usersDB)); localStorage.setItem('currentUser', JSON.stringify(currentUser)); } catch(e){} 
+    }
+
+    // ================= 账号与段位 =================
+    function getRankName(score) { if (score < 100) return '新手'; if (score < 300) return '青铜'; if (score < 600) return '白银'; if (score < 1000) return '黄金'; if (score < 1500) return '铂金'; if (score < 2100) return '钻石'; return '王者'; }
+    function updateScore(amount) { currentUser.score = Math.max(0, currentUser.score + amount); currentUser.stars = Math.floor(currentUser.score / 100); saveDB(); renderHome(); }
+    function switchTab(tab) { document.getElementById('tab-login').classList.remove('active'); document.getElementById('tab-register').classList.remove('active'); document.getElementById('login-form').classList.add('hidden'); document.getElementById('register-form').classList.add('hidden'); if (tab === 'login') { document.getElementById('tab-login').classList.add('active'); document.getElementById('login-form').classList.remove('hidden'); } else { document.getElementById('tab-register').classList.add('active'); document.getElementById('register-form').classList.remove('hidden'); } }
+    function handleRegister() { let name = document.getElementById('reg-name').value.trim(); let pass = document.getElementById('reg-pass').value.trim(); let pass2 = document.getElementById('reg-pass2').value.trim(); let qq = document.getElementById('reg-qq').value.trim(); if (!name || !pass) return alert('名字和密码不能为空！'); if (pass !== pass2) return alert('两次输入的密码不一致！'); if (usersDB.find(u => u.name === name)) return alert('该名字已被注册！'); usersDB.push({ id: Date.now().toString(), name: name, password: pass, role: 'player', qq: qq || '无', coins: 1000, stars: 0, score: 0, avatar: 'default.png', friends: [], friendRequests: [], chats: [], mailbox: [] }); try{localStorage.setItem('usersDB', JSON.stringify(usersDB));}catch(e){} alert('注册成功！请登录。'); switchTab('login'); }
+    function handleLogin() { let inputName = document.getElementById('login-name').value.trim(); let pass = document.getElementById('login-pass').value.trim(); let user = usersDB.find(u => (u.name === inputName || u.qq === inputName) && u.password === pass); if (!user) return alert('账号或密码错误！'); currentUser = user; try{localStorage.setItem('currentUser', JSON.stringify(currentUser));}catch(e){} showSection('main-section'); if (currentUser.role === 'author') alert('欢迎回来，最高权限作者！'); }
+    function logout() { if (confirm("确定要退出当前账号吗？")) { currentUser = null; try{localStorage.removeItem('currentUser');}catch(e){} document.getElementById('login-name').value = ''; document.getElementById('login-pass').value = ''; showSection('auth-section'); alert('已安全退出'); } }
+
+    // ================= 忘记密码 / 设置 / 邮箱 =================
+    function showForgotPassword() { let html = `<span class="close-btn" onclick="closeModal()">×</span><div class="modal-title">找回密码</div><input type="text" id="forgot-name" placeholder="输入你的账号名"><input type="text" id="forgot-qq" placeholder="输入绑定的QQ或手机号"><button class="btn" onclick="resetPassword()">验证并重置密码</button>`; showModal(html); }
+    function resetPassword() { let name = document.getElementById('forgot-name').value.trim(); let qq = document.getElementById('forgot-qq').value.trim(); let user = usersDB.find(u => u.name === name); if (!user) return alert('账号不存在！'); if (user.qq !== qq && qq !== '') return alert('QQ或手机号验证失败！'); let newPass = prompt("验证成功！请输入新密码："); if (newPass) { user.password = newPass; try{localStorage.setItem('usersDB', JSON.stringify(usersDB));}catch(e){} alert('密码重置成功，请重新登录！'); closeModal(); } }
+    function showSettings() { let html = `<span class="close-btn" onclick="closeModal()">×</span><div class="modal-title">⚙️ 设置</div><p style="font-size:14px;">声音：<button class="btn" style="width:auto; padding:5px 10px; background:#28a745;" onclick="alert('声音已开启')">开启</button> <button class="btn" style="width:auto; padding:5px 10px; background:#dc3545;" onclick="alert('声音已关闭')">关闭</button></p><hr><p style="font-size:14px; font-weight:bold;">兑换码</p><input type="text" id="redeem-code-input" placeholder="输入兑换码"><button class="btn" style="background:#17a2b8;" onclick="redeemCode()">兑换金币</button><hr><p style="font-size:14px; font-weight:bold;">修改密码</p><input type="password" id="new-pass-input" placeholder="输入新密码"><button class="btn" onclick="changePassword()">修改密码</button>`; showModal(html); }
+    function redeemCode() { let inputCode = document.getElementById('redeem-code-input').value.trim(); let codeObj = codesDB.find(c => c.code === inputCode); if (!codeObj) return alert('无效的兑换码！'); if (codeObj.usedTimes >= codeObj.maxTimes) return alert('该兑换码已被使用完毕！'); codeObj.usedTimes++; currentUser.coins += codeObj.coins; saveDB(); try{localStorage.setItem('codesDB', JSON.stringify(codesDB));}catch(e){} alert(`兑换成功！获得 ${codeObj.coins} 金币。`); renderHome(); closeModal(); }
+    function changePassword() { let newPass = document.getElementById('new-pass-input').value.trim(); if (!newPass) return alert('密码不能为空！'); currentUser.password = newPass; saveDB(); alert('密码修改成功！'); closeModal(); }
+    function showMailbox() { let html = `<span class="close-btn" onclick="closeModal()">×</span><div class="modal-title">✉️ 我的邮箱</div>`; if (currentUser.mailbox.length === 0) html += '<p style="color:#888;font-size:14px;">暂无邮件</p>'; else currentUser.mailbox.forEach(m => { html += `<div class="mail-item"><h4>${m.title}</h4><p>${m.content}</p><span>${m.time}</span></div>`; }); showModal(html); }
+    function showModal(html) { document.getElementById('modal-content-body').innerHTML = html; document.getElementById('modal-container').classList.remove('hidden'); }
+    function closeModal() { document.getElementById('modal-container').classList.add('hidden'); }
+
+    // ================= 导航与渲染 =================
+    function switchNav(page) {
+        ['page-my', 'page-forum', 'page-friends', 'page-rank', 'page-admin', 'page-gomoku', 'page-xiangqi', 'page-tictactoe'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        let navItems = document.querySelectorAll('.nav-item'); navItems.forEach(item => item.classList.remove('active'));
+
+        if (page === 'my') { document.getElementById('page-my').classList.remove('hidden'); navItems[0].classList.add('active'); document.getElementById('page-title').innerText = "我的"; renderHome(); }
+        else if (page === 'forum') { document.getElementById('page-forum').classList.remove('hidden'); navItems[1].classList.add('active'); document.getElementById('page-title').innerText = "论坛"; renderForum(); }
+        else if (page === 'friends') { document.getElementById('page-friends').classList.remove('hidden'); navItems[2].classList.add('active'); document.getElementById('page-title').innerText = "好友"; switchFriendTab('list'); }
+        else if (page === 'rank') { document.getElementById('page-rank').classList.remove('hidden'); document.getElementById('page-title').innerText = "排行榜"; renderRank(); }
+        else if (page === 'admin') { document.getElementById('page-admin').classList.remove('hidden'); document.getElementById('page-title').innerText = "管理后台"; switchAdminTab('users'); }
+    }
+    function renderHome() {
+        document.getElementById('display-name').innerText = currentUser.name;
+        document.getElementById('display-coins').innerText = currentUser.coins;
+        document.getElementById('display-rank').innerText = getRankName(currentUser.score) + ' (' + currentUser.stars + '星)';
+        document.getElementById('mail-count').innerText = currentUser.mailbox ? currentUser.mailbox.length : 0;
+        if (currentUser.avatar && currentUser.avatar !== 'default.png') document.getElementById('avatar-display').innerHTML = `<img src="${currentUser.avatar}">`;
+        document.getElementById('btn-admin').style.display = currentUser.role === 'author' ? 'block' : 'none';
+    }
+    function uploadAvatar() { let fileInput = document.createElement('input'); fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.onchange = function(e) { let file = e.target.files[0]; if (file) { let reader = new FileReader(); reader.onload = function(event) { currentUser.avatar = event.target.result; saveDB(); renderHome(); }; reader.readAsDataURL(file); } }; fileInput.click(); }
+
+    // ================= 游戏模式选择（修复加入房间逻辑） =================
+    function showGameModeModal(gameType) {
+        let title = gameType === 'gomoku' ? '五子棋' : '中国象棋';
+        let html = `<span class="close-btn" onclick="closeModal()">×</span><div class="modal-title">选择${title}模式</div>
+            <button class="btn" style="background:#28a745;" onclick="closeModal(); startGameWithMode('${gameType}', 'ai')">人机对战</button>
+            <button class="btn" style="background:#e83e8c;" onclick="closeModal(); startGameWithMode('${gameType}', 'pvp')">双人同屏</button>
+            <hr style="margin: 15px 0;">
+            <p style="font-size:14px; font-weight:bold;">房间模式（本地模拟）</p>
+            <button class="btn" style="background:#007bff;" onclick="closeModal(); createRoom('${gameType}')">创建房间</button>
+            <button class="btn" style="background:#ffc107; color:#333;" onclick="closeModal(); joinRoom('${gameType}')">加入房间</button>`;
+        showModal(html);
+    }
+
+    function startGameWithMode(game, mode) {
+        if (game === 'gomoku') {
+            isGomokuPvP = (mode === 'pvp');
+            document.getElementById('gomoku-pvp-btn').innerText = '双人同屏：' + (isGomokuPvP ? '开' : '关');
+            document.getElementById('gomoku-room-tag').innerText = '';
+            startGomoku();
+        } else if (game === 'xiangqi') {
+            isXqPvP = (mode === 'pvp');
+            document.getElementById('xiangqi-pvp-btn').innerText = '双人同屏：' + (isXqPvP ? '开' : '关');
+            document.getElementById('xiangqi-room-tag').innerText = '';
+            startXiangqi();
+        }
+    }
+
+    function createRoom(game) {
+        let roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+        roomsDB[roomCode] = { game: game, creator: currentUser.name, status: 'waiting', players: [currentUser.name] };
+        try{localStorage.setItem('roomsDB', JSON.stringify(roomsDB));}catch(e){}
+        
+        let html = `<span class="close-btn" onclick="closeModal()">×</span><div class="modal-title">房间已创建</div>
+            <div class="room-box">
+                <p>房间号：</p>
+                <div class="room-code">${roomCode}</div>
+                <p style="font-size:12px; color:#888;">把房间号告诉好友，让TA在“加入房间”输入</p>
+                <p style="font-size:12px; color:#888;">（当前为单机模拟，点击下方按钮可直接开始本地双人对战）</p>
+                <button class="btn" style="background:#28a745;" onclick="startRoomGame('${game}', '${roomCode}')">邀请AI / 开始本地双人对战</button>
+            </div>`;
+        showModal(html);
+    }
+
+    function joinRoom(game) {
+        let roomCode = prompt("请输入6位房间号：");
+        if (!roomCode) return;
+        roomCode = roomCode.toUpperCase();
+        if (!roomsDB[roomCode]) return alert("房间不存在！\n\n因为目前是单机版，请先点击“创建房间”生成一个房间号，再用该房间号加入。");
+        if (roomsDB[roomCode].game !== game) return alert("房间游戏类型不匹配！");
+        startRoomGame(game, roomCode);
+    }
+
+    function startRoomGame(game, roomCode) {
+        closeModal();
+        alert(`成功加入房间 ${roomCode}！开始对战！`);
+        if (game === 'gomoku') {
+            isGomokuPvP = true;
+            document.getElementById('gomoku-pvp-btn').innerText = '双人同屏：开';
+            document.getElementById('gomoku-room-tag').innerText = '房间号: ' + roomCode;
+            startGomoku();
+        } else if (game === 'xiangqi') {
+            isXqPvP = true;
+            document.getElementById('xiangqi-pvp-btn').innerText = '双人同屏：开';
+            document.getElementById('xiangqi-room-tag').innerText = '房间号: ' + roomCode;
+            startXiangqi();
+        }
+    }
+
+    // ================= 管理后台 =================
+    function switchAdminTab(tab) {
+        ['admin-tab-users', 'admin-tab-codes', 'admin-tab-mail', 'admin-tab-reports'].forEach(id => document.getElementById(id).classList.remove('active'));
+        ['admin-users-container', 'admin-codes-container', 'admin-mail-container', 'admin-reports-container'].forEach(id => document.getElementById(id).classList.add('hidden'));
+        if (tab === 'users') { document.getElementById('admin-tab-users').classList.add('active'); document.getElementById('admin-users-container').classList.remove('hidden'); renderAdminUsers(); }
+        else if (tab === 'codes') { document.getElementById('admin-tab-codes').classList.add('active'); document.getElementById('admin-codes-container').classList.remove('hidden'); renderCodes(); }
+        else if (tab === 'mail') { document.getElementById('admin-tab-mail').classList.add('active'); document.getElementById('admin-mail-container').classList.remove('hidden'); }
+        else if (tab === 'reports') { document.getElementById('admin-tab-reports').classList.add('active'); document.getElementById('admin-reports-container').classList.remove('hidden'); renderReports(); }
+    }
+    function renderAdminUsers() { let html = ''; usersDB.forEach(u => { html += `<div class="admin-item"><div><b>${u.name}</b> (ID:${u.id})<br><span style="font-size:11px;">金币:${u.coins} | 积分:${u.score} | QQ:${u.qq}</span></div><div><button class="btn-accept" style="padding:3px 8px;" onclick="adminAddCoins('${u.id}')">改金币</button></div></div>`; }); document.getElementById('admin-user-list').innerHTML = html; }
+    function adminAddCoins(userId) { let amountStr = prompt("输入增加的金币数量（输入负数扣除）："); if (!amountStr) return; let amount = parseInt(amountStr); if (isNaN(amount)) return alert("请输入有效数字！"); let targetUser = usersDB.find(u => u.id === userId); if (targetUser) { targetUser.coins = parseInt(targetUser.coins) || 0; targetUser.coins += amount; if(targetUser.coins < 0) targetUser.coins = 0; if(targetUser.coins > 99999999) targetUser.coins = 99999999; saveDB(); renderAdminUsers(); alert("修改成功！"); } }
+    function generateCode() { let coins = parseInt(document.getElementById('code-coins').value); let times = parseInt(document.getElementById('code-times').value); if (isNaN(coins) || isNaN(times) || coins <= 0 || times <= 0) return alert("请输入有效的金币和次数！"); let codeStr = 'CODE-' + Math.random().toString(36).substring(2, 10).toUpperCase(); codesDB.push({ code: codeStr, coins: coins, maxTimes: times, usedTimes: 0 }); try{localStorage.setItem('codesDB', JSON.stringify(codesDB));}catch(e){} document.getElementById('code-coins').value = ''; document.getElementById('code-times').value = ''; renderCodes(); alert("兑换码生成成功：" + codeStr); }
+    function renderCodes() { let html = codesDB.map(c => `<div class="code-box">${c.code} | 金币:${c.coins} | 可用:${c.usedTimes}/${c.maxTimes}次</div>`).join(''); document.getElementById('code-list').innerHTML = html || '<p style="font-size:12px;color:#888;">暂无兑换码</p>'; }
+    function sendGlobalMail() { let title = document.getElementById('mail-title').value.trim(); let content = document.getElementById('mail-content').value.trim(); let target = document.getElementById('mail-target').value.trim(); if (!title || !content || !target) return alert("请填写完整邮件信息！"); let mailItem = { title: title, content: content, time: new Date().toLocaleString(), from: '系统' }; if (target.toLowerCase() === 'all') { usersDB.forEach(u => { u.mailbox.push(mailItem); }); alert('全服邮件发送成功！'); } else { let targetUser = usersDB.find(u => u.name === target); if (targetUser) { targetUser.mailbox.push(mailItem); alert('邮件已发送给 ' + target); } else return alert('未找到该玩家！'); } saveDB(); document.getElementById('mail-title').value = ''; document.getElementById('mail-content').value = ''; document.getElementById('mail-target').value = ''; }
+    function renderReports() { let html = reportsDB.map(r => `<div class="admin-item"><div><b>被举报帖子ID:</b> ${r.postId}<br><span style="font-size:11px;">原因: ${r.reason} | 举报人: ${r.reporter}</span></div></div>`).join(''); document.getElementById('report-list').innerHTML = html || '<p style="font-size:12px;color:#888;">暂无举报记录</p>'; }
+
+    // ================= 排行榜 =================
+    function renderRank() { let sorted = [...usersDB].sort((a, b) => b.score - a.score).slice(0, 100); let html = sorted.map((u, index) => `<div class="rank-list-item"><div><b>${index + 1}. ${u.name}</b><br><span class="rank-badge">${getRankName(u.score)}</span></div><div style="color:goldenrod;font-weight:bold;">积分: ${u.score}</div></div>`).join(''); document.getElementById('rank-coins-list').innerHTML = html || '<p>暂无数据</p>'; }
+
+    // ================= 论坛与好友 =================
+    function uploadPostImage() { if (tempMedia.length >= 3) return alert('最多上传3个媒体文件！'); let fileInput = document.createElement('input'); fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.onchange = function(e) { let file = e.target.files[0]; if (file) { let reader = new FileReader(); reader.onload = function(event) { tempMedia.push({ type: 'image', src: event.target.result }); updateMediaPreview(); }; reader.readAsDataURL(file); } }; fileInput.click(); }
+    function uploadPostVideo() { if (tempMedia.length >= 3) return alert('最多上传3个媒体文件！'); let fileInput = document.createElement('input'); fileInput.type = 'file'; fileInput.accept = 'video/*'; fileInput.onchange = function(e) { let file = e.target.files[0]; if (file) { if (file.size > 5 * 1024 * 1024) return alert('目前测试版仅支持5MB以内的短视频！'); let reader = new FileReader(); reader.onload = function(event) { tempMedia.push({ type: 'video', src: event.target.result }); updateMediaPreview(); }; reader.readAsDataURL(file); } }; fileInput.click(); }
+    function updateMediaPreview() { document.getElementById('media-count').innerText = tempMedia.length + '/3'; let html = tempMedia.map(m => m.type === 'image' ? `<img src="${m.src}">` : `<video src="${m.src}" controls></video>`).join(''); document.getElementById('preview-media').innerHTML = html; }
+    function createPost() { let content = document.getElementById('post-content-input').value.trim(); if (!content && tempMedia.length === 0) return alert('请输入内容或添加媒体文件！'); if (content.length > 200) return alert('内容不能超过200字！'); let newPost = { id: Date.now().toString(), authorId: currentUser.id, authorName: currentUser.name, authorAvatar: currentUser.avatar, content: content || "分享了媒体", media: [...tempMedia], likes: [], comments: [], timestamp: new Date().toLocaleString() }; postsDB.unshift(newPost); try{localStorage.setItem('postsDB', JSON.stringify(postsDB));}catch(e){} document.getElementById('post-content-input').value = ''; tempMedia = []; updateMediaPreview(); renderForum(); alert('发布成功！'); }
+    function renderForum() { let container = document.getElementById('post-list-container'); if (postsDB.length === 0) return container.innerHTML = '<p style="text-align:center; color:#888; margin-top:30px;">还没有帖子，快来发第一条吧！</p>'; let html = ''; postsDB.forEach(post => { let isLiked = post.likes.includes(currentUser.id); let likeClass = isLiked ? 'action-btn active' : 'action-btn'; let mediaHtml = post.media && post.media.length > 0 ? `<div class="media-box">` + post.media.map(m => m.type === 'image' ? `<img src="${m.src}">` : `<video src="${m.src}" controls></video>`).join('') + `</div>` : ''; let commentsHtml = post.comments.map(c => `<div class="comment-item"><b>${c.name}:</b> ${c.text}</div>`).join(''); html += `<div class="post-card"><div class="post-header"><div class="post-avatar">${post.authorAvatar !== 'default.png' ? `<img src="${post.authorAvatar}">` : post.authorName[0]}</div><div class="post-meta"><h4>${post.authorName}</h4><span>${post.timestamp}</span></div></div><div class="post-content">${post.content}</div>${mediaHtml}<div class="post-footer"><div class="${likeClass}" onclick="toggleLike('${post.id}')">❤️ ${post.likes.length}</div><div class="action-btn" onclick="toggleComment('${post.id}')">💬 评论</div><div class="action-btn" onclick="rewardPost('${post.id}')">💰 打赏</div><div class="action-btn" onclick="reportPost('${post.id}')">🚩 举报</div></div><div class="comment-section" id="comment-sec-${post.id}">${commentsHtml}<div class="comment-input-area"><input type="text" id="comment-input-${post.id}" placeholder="写下你的回复..."><button onclick="addComment('${post.id}')">发送</button></div></div></div>`; }); container.innerHTML = html; }
+    function toggleLike(postId) { let post = postsDB.find(p => p.id === postId); if (!post) return; let i = post.likes.indexOf(currentUser.id); if (i === -1) post.likes.push(currentUser.id); else post.likes.splice(i, 1); try{localStorage.setItem('postsDB', JSON.stringify(postsDB));}catch(e){} renderForum(); }
+    function toggleComment(postId) { let sec = document.getElementById(`comment-sec-${postId}`); sec.style.display = sec.style.display === 'block' ? 'none' : 'block'; }
+    function addComment(postId) { let input = document.getElementById(`comment-input-${postId}`); let text = input.value.trim(); if (!text) return; let post = postsDB.find(p => p.id === postId); if (post) { post.comments.push({ name: currentUser.name, text: text }); try{localStorage.setItem('postsDB', JSON.stringify(postsDB));}catch(e){} input.value = ''; renderForum(); setTimeout(() => { document.getElementById(`comment-sec-${postId}`).style.display = 'block'; }, 100); } }
+    function rewardPost(postId) { let amountStr = prompt("请输入打赏金币数量："); if (!amountStr) return; let amount = parseInt(amountStr); if (isNaN(amount) || amount <= 0) return alert("请输入有效的正整数！"); if (amount > currentUser.coins) return alert("你的金币不足！"); let received = Math.floor(amount * 0.8); currentUser.coins -= amount; saveDB(); let post = postsDB.find(p => p.id === postId); let author = usersDB.find(u => u.id === post.authorId); if (author) { author.coins += received; saveDB(); } alert(`打赏成功！你付出了 ${amount} 金币，对方实际收到 ${received} 金币。`); renderHome(); renderForum(); }
+    function reportPost(postId) { let reason = prompt("请输入举报理由（如：违规、广告等）："); if (!reason) return; reportsDB.push({ postId: postId, reason: reason, reporter: currentUser.name, time: new Date().toLocaleString() }); try{localStorage.setItem('reportsDB', JSON.stringify(reportsDB));}catch(e){} alert('举报已提交，管理员会尽快处理！'); }
+
+    function switchFriendTab(tab) { ['tab-friend-list', 'tab-friend-add', 'tab-friend-requests'].forEach(id => document.getElementById(id).classList.remove('active')); ['friend-list-container', 'friend-add-container', 'friend-requests-container'].forEach(id => document.getElementById(id).classList.add('hidden')); if (tab === 'list') { document.getElementById('tab-friend-list').classList.add('active'); document.getElementById('friend-list-container').classList.remove('hidden'); renderFriendList(); } else if (tab === 'add') { document.getElementById('tab-friend-add').classList.add('active'); document.getElementById('friend-add-container').classList.remove('hidden'); } else if (tab === 'requests') { document.getElementById('tab-friend-requests').classList.add('active'); document.getElementById('friend-requests-container').classList.remove('hidden'); renderFriendRequests(); } }
+    function searchFriend() { let query = document.getElementById('search-friend-input').value.trim(); let resultDiv = document.getElementById('search-result'); if (!query) return alert('请输入搜索内容！'); let foundUser = usersDB.find(u => u.name === query || u.id === query); if (!foundUser) return resultDiv.innerHTML = '<p style="color:red;">未找到该玩家</p>'; if (foundUser.id === currentUser.id) return resultDiv.innerHTML = '<p style="color:orange;">不能添加自己为好友哦</p>'; if (currentUser.friends.includes(foundUser.id)) return resultDiv.innerHTML = '<p style="color:blue;">你们已经是好友了</p>'; if (foundUser.friendRequests.includes(currentUser.id)) return resultDiv.innerHTML = '<p style="color:orange;">已发送过好友请求，等待对方同意</p>'; resultDiv.innerHTML = `<div class="friend-item"><div class="friend-info"><div class="friend-avatar">${foundUser.avatar !== 'default.png' ? `<img src="${foundUser.avatar}">` : foundUser.name[0]}</div><span>${foundUser.name}</span></div><div class="friend-btns"><button class="btn-accept" onclick="sendFriendRequest('${foundUser.id}')">加好友</button></div></div>`; }
+    function sendFriendRequest(targetId) { let targetUser = usersDB.find(u => u.id === targetId); if (targetUser) { targetUser.friendRequests.push(currentUser.id); saveDB(); alert('好友请求已发送！'); document.getElementById('search-result').innerHTML = '<p style="color:blue;">请求已发送</p>'; } }
+    function renderFriendRequests() { let container = document.getElementById('friend-requests-container'); if (currentUser.friendRequests.length === 0) return container.innerHTML = '<p style="text-align:center; color:#888;">暂无新的好友请求</p>'; let html = ''; currentUser.friendRequests.forEach(reqId => { let reqUser = usersDB.find(u => u.id === reqId); if (reqUser) html += `<div class="friend-item"><div class="friend-info"><div class="friend-avatar">${reqUser.avatar !== 'default.png' ? `<img src="${reqUser.avatar}">` : reqUser.name[0]}</div><span>${reqUser.name}</span></div><div class="friend-btns"><button class="btn-accept" onclick="acceptFriendRequest('${reqUser.id}')">同意</button></div></div>`; }); container.innerHTML = html; }
+    function acceptFriendRequest(friendId) { let friendUser = usersDB.find(u => u.id === friendId); if (friendUser && !friendUser.friends.includes(currentUser.id)) friendUser.friends.push(currentUser.id); if (!currentUser.friends.includes(friendId)) currentUser.friends.push(friendId); currentUser.friendRequests = currentUser.friendRequests.filter(id => id !== friendId); saveDB(); alert('已同意好友请求！'); switchFriendTab('list'); }
+    function renderFriendList() { let container = document.getElementById('friend-list-container'); if (currentUser.friends.length === 0) return container.innerHTML = '<p style="text-align:center; color:#888;">还没有好友，快去添加吧！</p>'; let html = ''; currentUser.friends.forEach(fId => { let friend = usersDB.find(u => u.id === fId); if (friend) html += `<div class="friend-item"><div class="friend-info"><div class="friend-avatar">${friend.avatar !== 'default.png' ? `<img src="${friend.avatar}">` : friend.name[0]}</div><span>${friend.name}</span></div><div class="friend-btns"><button class="btn-chat" onclick="openChat('${friend.id}')">发消息</button></div></div>`; }); container.innerHTML = html; }
+    function openChat(friendId) { currentChatFriendId = friendId; let friend = usersDB.find(u => u.id === friendId); document.getElementById('chat-with-name').innerText = friend.name; document.getElementById('chat-window').classList.remove('hidden'); renderChatMessages(); }
+    function closeChat() { currentChatFriendId = null; document.getElementById('chat-window').classList.add('hidden'); renderFriendList(); }
+    function renderChatMessages() { let container = document.getElementById('chat-messages-container'); container.innerHTML = ''; if (!currentUser.chats) currentUser.chats = {}; if (!currentUser.chats[currentChatFriendId]) currentUser.chats[currentChatFriendId] = []; currentUser.chats[currentChatFriendId].forEach(msg => { let div = document.createElement('div'); div.className = `msg ${msg.sender === currentUser.id ? 'me' : 'friend'}`; div.innerText = msg.text; container.appendChild(div); }); container.scrollTop = container.scrollHeight; }
+    function sendMessage() { let input = document.getElementById('chat-input'); let text = input.value.trim(); if (!text) return; let friendId = currentChatFriendId; if (!currentUser.chats) currentUser.chats = {}; if (!currentUser.chats[friendId]) currentUser.chats[friendId] = []; currentUser.chats[friendId].push({ sender: currentUser.id, text: text }); let friendUser = usersDB.find(u => u.id === friendId); if (friendUser) { if (!friendUser.chats) friendUser.chats = {}; if (!friendUser.chats[currentUser.id]) friendUser.chats[currentUser.id] = []; friendUser.chats[currentUser.id].push({ sender: currentUser.id, text: text }); } saveDB(); input.value = ''; renderChatMessages(); let container = document.getElementById('chat-messages-container'); let typingDiv = document.createElement('div'); typingDiv.className = 'msg friend'; typingDiv.innerText = '对方正在输入...'; typingDiv.id = 'typing-indicator'; container.appendChild(typingDiv); container.scrollTop = container.scrollHeight; setTimeout(() => { let typing = document.getElementById('typing-indicator'); if (typing) typing.remove(); if (friendUser) { let autoReplies = ["哈哈哈，确实！", "我也这么觉得。", "走，去打一局五子棋？", "你的金币好多啊！", "666", "【系统提示：这是自动回复，可以登录对方账号查看真实消息】"]; let replyText = autoReplies[Math.floor(Math.random() * autoReplies.length)]; friendUser.chats[currentUser.id].push({ sender: friendUser.id, text: replyText }); currentUser.chats[friendId].push({ sender: friendUser.id, text: replyText }); saveDB(); renderChatMessages(); } }, 800); }
+
+    // ================= 五子棋（Bug修复 + 房间模式） =================
+    const gomokuBoardSize = 15; const gomokuCellSize = 360 / gomokuBoardSize; const gomokuRadius = gomokuCellSize * 0.4; let gomokuCanvas, gomokuCtx, gomokuStatusText, gomokuCoinsEl, gomokuScoreEl; let gomokuBoard = []; let isGomokuPlayerTurn = true; let isGomokuGameOver = false; let isGomokuPvP = false; let currentGomokuPlayer = 1;
+    function startGomoku() { ['page-my', 'page-forum', 'page-friends', 'page-rank', 'page-admin', 'page-xiangqi', 'page-tictactoe'].forEach(id => document.getElementById(id).classList.add('hidden')); document.getElementById('page-gomoku').classList.remove('hidden'); document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active')); document.getElementById('page-title').innerText = "五子棋"; gomokuCanvas = document.getElementById('chessBoard'); gomokuCtx = gomokuCanvas.getContext('2d'); gomokuStatusText = document.getElementById('gomoku-status'); gomokuCoinsEl = document.getElementById('gomokuCoins'); gomokuScoreEl = document.getElementById('gomokuScore'); if(!gomokuCanvas.onclick) { gomokuCanvas.onclick = function(e) { if (isGomokuGameOver) return; const rect = gomokuCanvas.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top; const i = Math.round((x - gomokuCellSize / 2) / gomokuCellSize); const j = Math.round((y - gomokuCellSize / 2) / gomokuCellSize); if (i < 0 || i >= gomokuBoardSize || j < 0 || j >= gomokuBoardSize) return; if (gomokuBoard[i][j] !== 0) return; let playerToPlace = isGomokuPvP ? currentGomokuPlayer : 1; placeGomokuPiece(i, j, playerToPlace); }; } gomokuCoinsEl.innerText = currentUser.coins; gomokuScoreEl.innerText = currentUser.score; initGomokuBoard(); }
+    function toggleGomokuPvP() { isGomokuPvP = !isGomokuPvP; document.getElementById('gomoku-pvp-btn').innerText = '双人同屏：' + (isGomokuPvP ? '开' : '关'); if (!isGomokuPvP) document.getElementById('gomoku-room-tag').innerText = ''; resetGomoku(); }
+    function updateGomokuResult(amountCoins, amountScore) { currentUser.coins = parseInt(currentUser.coins) || 0; currentUser.coins += amountCoins; if (currentUser.coins < 0) currentUser.coins = 0; if (currentUser.coins > 99999999) currentUser.coins = 99999999; updateScore(amountScore); gomokuCoinsEl.innerText = currentUser.coins; gomokuScoreEl.innerText = currentUser.score; }
+    function initGomokuBoard() { gomokuBoard = []; for (let i = 0; i < gomokuBoardSize; i++) { gomokuBoard[i] = []; for (let j = 0; j < gomokuBoardSize; j++) gomokuBoard[i][j] = 0; } isGomokuPlayerTurn = true; isGomokuGameOver = false; currentGomokuPlayer = 1; gomokuStatusText.innerText = isGomokuPvP ? "黑方回合" : "你的回合（黑棋）"; drawGomokuBoard(); }
+    function drawGomokuBoard() { gomokuCtx.clearRect(0, 0, gomokuCanvas.width, gomokuCanvas.height); gomokuCtx.strokeStyle = '#333'; gomokuCtx.lineWidth = 1; for (let i = 0; i < gomokuBoardSize; i++) { gomokuCtx.beginPath(); gomokuCtx.moveTo(gomokuCellSize / 2, gomokuCellSize / 2 + i * gomokuCellSize); gomokuCtx.lineTo(gomokuCanvas.width - gomokuCellSize / 2, gomokuCellSize / 2 + i * gomokuCellSize); gomokuCtx.stroke(); gomokuCtx.beginPath(); gomokuCtx.moveTo(gomokuCellSize / 2 + i * gomokuCellSize, gomokuCellSize / 2); gomokuCtx.lineTo(gomokuCellSize / 2 + i * gomokuCellSize, gomokuCanvas.height - gomokuCellSize / 2); gomokuCtx.stroke(); } for (let i = 0; i < gomokuBoardSize; i++) { for (let j = 0; j < gomokuBoardSize; j++) { if (gomokuBoard[i][j] !== 0) { gomokuCtx.beginPath(); gomokuCtx.arc(gomokuCellSize / 2 + i * gomokuCellSize, gomokuCellSize / 2 + j * gomokuCellSize, gomokuRadius, 0, Math.PI * 2); let gradient = gomokuCtx.createRadialGradient(gomokuCellSize / 2 + i * gomokuCellSize - gomokuRadius/3, gomokuCellSize / 2 + j * gomokuCellSize - gomokuRadius/3, gomokuRadius/5, gomokuCellSize / 2 + i * gomokuCellSize, gomokuCellSize / 2 + j * gomokuCellSize, gomokuRadius); if (gomokuBoard[i][j] === 1) { gradient.addColorStop(0, '#666'); gradient.addColorStop(1, '#000'); } else { gradient.addColorStop(0, '#fff'); gradient.addColorStop(1, '#ccc'); } gomokuCtx.fillStyle = gradient; gomokuCtx.fill(); gomokuCtx.strokeStyle = '#333'; gomokuCtx.stroke(); } } } }
+    function placeGomokuPiece(i, j, player) {
+        gomokuBoard[i][j] = player; drawGomokuBoard();
+        if (checkGomokuWin(i, j, player)) {
+            isGomokuGameOver = true;
+            if (player === 1) { if(isGomokuPvP) { gomokuStatusText.innerText = "🎉 黑方赢了！"; } else { gomokuStatusText.innerText = "🎉 你赢了！金币 +50，积分 +20"; updateGomokuResult(50, 20); } }
+            else { if(isGomokuPvP) { gomokuStatusText.innerText = "🎉 白方赢了！"; } else { gomokuStatusText.innerText = "😭 AI赢了，金币 -20，积分 -10"; updateGomokuResult(-20, -10); } }
+            return;
+        }
+        let isFull = gomokuBoard.every(row => row.every(cell => cell !== 0));
+        if (isFull) { isGomokuGameOver = true; gomokuStatusText.innerText = "平局！"; return; }
+        
+        if (isGomokuPvP) {
+            currentGomokuPlayer = currentGomokuPlayer === 1 ? 2 : 1;
+            isGomokuPlayerTurn = (currentGomokuPlayer === 1);
+            gomokuStatusText.innerText = currentGomokuPlayer === 1 ? "黑方回合" : "白方回合";
+        } else {
+            isGomokuPlayerTurn = !isGomokuPlayerTurn;
+            if (!isGomokuPlayerTurn) { gomokuStatusText.innerText = "AI 思考中..."; setTimeout(gomokuAITurn, 300); }
+        }
+    }
+    function evaluateGomokuPoint(x, y, player) { let score = 0; const directions = [[1, 0], [0, 1], [1, 1], [1, -1]]; for (let dir of directions) { let count = 1; let block = 0; for (let k = 1; k < 5; k++) { let nx = x + dir[0] * k, ny = y + dir[1] * k; if (nx < 0 || nx >= gomokuBoardSize || ny < 0 || ny >= gomokuBoardSize) { block++; break; } if (gomokuBoard[nx][ny] === player) count++; else if (gomokuBoard[nx][ny] !== 0) { block++; break; } else break; } for (let k = 1; k < 5; k++) { let nx = x - dir[0] * k, ny = y - dir[1] * k; if (nx < 0 || nx >= gomokuBoardSize || ny < 0 || ny >= gomokuBoardSize) { block++; break; } if (gomokuBoard[nx][ny] === player) count++; else if (gomokuBoard[nx][ny] !== 0) { block++; break; } else break; } if (count >= 5) score += 100000; else if (count === 4 && block === 0) score += 10000; else if (count === 4 && block === 1) score += 1000; else if (count === 3 && block === 0) score += 1000; else if (count === 3 && block === 1) score += 100; else if (count === 2 && block === 0) score += 100; else if (count === 2 && block === 1) score += 10; } return score; }
+    function gomokuAITurn() { if (isGomokuGameOver || isGomokuPvP) return; let bestScore = -1; let bestMove = null; for (let i = 0; i < gomokuBoardSize; i++) { for (let j = 0; j < gomokuBoardSize; j++) { if (gomokuBoard[i][j] === 0) { let aiScore = evaluateGomokuPoint(i, j, 2); let playerScore = evaluateGomokuPoint(i, j, 1); let totalScore = aiScore + playerScore * 0.8 + Math.random() * 10; if (totalScore > bestScore) { bestScore = totalScore; bestMove = { i, j }; } } } } if (bestMove) placeGomokuPiece(bestMove.i, bestMove.j, 2); }
+    function checkGomokuWin(i, j, player) { const directions = [[1, 0], [0, 1], [1, 1], [1, -1]]; for (let dir of directions) { let count = 1; for (let k = 1; k < 5; k++) { let ni = i + dir[0] * k, nj = j + dir[1] * k; if (ni < 0 || ni >= gomokuBoardSize || nj < 0 || nj >= gomokuBoardSize || gomokuBoard[ni][nj] !== player) break; count++; } for (let k = 1; k < 5; k++) { let ni = i - dir[0] * k, nj = j - dir[1] * k; if (ni < 0 || ni >= gomokuBoardSize || nj < 0 || nj >= gomokuBoardSize || gomokuBoard[ni][nj] !== player) break; count++; } if (count >= 5) return true; } return false; }
+    function resetGomoku() { initGomokuBoard(); }
+
+    // ================= 中国象棋 =================
+    const XQ_ROWS = 10, XQ_COLS = 9; let xqBoard = []; let xqSelected = null; let isXqPlayerTurn = true; let isXqGameOver = false; let xqCoinsEl, xqScoreEl; let isXqPvP = false;
+    const PIECE_NAMES = { 'king': { red: '帥', black: '將' }, 'advisor': { red: '仕', black: '士' }, 'elephant': { red: '相', black: '象' }, 'rook': { red: '車', black: '車' }, 'knight': { red: '馬', black: '馬' }, 'cannon': { red: '炮', black: '砲' }, 'pawn': { red: '兵', black: '卒' } };
+    function startXiangqi() { ['page-my', 'page-forum', 'page-friends', 'page-rank', 'page-admin', 'page-gomoku', 'page-tictactoe'].forEach(id => document.getElementById(id).classList.add('hidden')); document.getElementById('page-xiangqi').classList.remove('hidden'); document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active')); document.getElementById('page-title').innerText = "中国象棋"; xqCoinsEl = document.getElementById('xiangqiCoins'); xqScoreEl = document.getElementById('xiangqiScore'); xqCoinsEl.innerText = currentUser.coins; xqScoreEl.innerText = currentUser.score; initXiangqiBoard(); }
+    function toggleXiangqiPvP() { isXqPvP = !isXqPvP; document.getElementById('xiangqi-pvp-btn').innerText = '双人同屏：' + (isXqPvP ? '开' : '关'); if (!isXqPvP) document.getElementById('xiangqi-room-tag').innerText = ''; resetXiangqi(); }
+    function initXiangqiBoard() { xqBoard = Array(XQ_ROWS).fill().map(() => Array(XQ_COLS).fill(null)); xqBoard[0][0] = { color: 'black', type: 'rook' }; xqBoard[0][1] = { color: 'black', type: 'knight' }; xqBoard[0][2] = { color: 'black', type: 'elephant' }; xqBoard[0][3] = { color: 'black', type: 'advisor' }; xqBoard[0][4] = { color: 'black', type: 'king' }; xqBoard[0][5] = { color: 'black', type: 'advisor' }; xqBoard[0][6] = { color: 'black', type: 'elephant' }; xqBoard[0][7] = { color: 'black', type: 'knight' }; xqBoard[0][8] = { color: 'black', type: 'rook' }; xqBoard[2][1] = { color: 'black', type: 'cannon' }; xqBoard[2][7] = { color: 'black', type: 'cannon' }; for (let i = 0; i < 9; i += 2) xqBoard[3][i] = { color: 'black', type: 'pawn' }; xqBoard[9][0] = { color: 'red', type: 'rook' }; xqBoard[9][1] = { color: 'red', type: 'knight' }; xqBoard[9][2] = { color: 'red', type: 'elephant' }; xqBoard[9][3] = { color: 'red', type: 'advisor' }; xqBoard[9][4] = { color: 'red', type: 'king' }; xqBoard[9][5] = { color: 'red', type: 'advisor' }; xqBoard[9][6] = { color: 'red', type: 'elephant' }; xqBoard[9][7] = { color: 'red', type: 'knight' }; xqBoard[9][8] = { color: 'red', type: 'rook' }; xqBoard[7][1] = { color: 'red', type: 'cannon' }; xqBoard[7][7] = { color: 'red', type: 'cannon' }; for (let i = 0; i < 9; i += 2) xqBoard[6][i] = { color: 'red', type: 'pawn' }; xqSelected = null; isXqPlayerTurn = true; isXqGameOver = false; document.getElementById('xiangqi-status').innerText = isXqPvP ? "红方走棋" : "红方走棋（你）"; renderXiangqiBoard(); }
+    function renderXiangqiBoard() { let boardDiv = document.getElementById('xiangqiBoard'); boardDiv.innerHTML = ''; for (let r = 0; r < XQ_ROWS; r++) { for (let c = 0; c < XQ_COLS; c++) { let cell = document.createElement('div'); cell.className = 'xiangqi-cell'; cell.onclick = () => handleXiangqiClick(r, c); let piece = xqBoard[r][c]; if (piece) { let pieceDiv = document.createElement('div'); pieceDiv.className = `piece ${piece.color}`; if (xqSelected && xqSelected.r === r && xqSelected.c === c) pieceDiv.classList.add('selected'); pieceDiv.innerText = PIECE_NAMES[piece.type][piece.color]; cell.appendChild(pieceDiv); } boardDiv.appendChild(cell); } } }
+    function handleXiangqiClick(r, c) { if (isXqGameOver) return; let piece = xqBoard[r][c]; if (xqSelected) { if (piece && piece.color === (isXqPlayerTurn ? 'red' : 'black')) { xqSelected = { r, c }; renderXiangqiBoard(); return; } if (isValidXiangqiMove(xqSelected.r, xqSelected.c, r, c)) { let captured = xqBoard[r][c]; xqBoard[r][c] = xqBoard[xqSelected.r][xqSelected.c]; xqBoard[xqSelected.r][xqSelected.c] = null; xqSelected = null; renderXiangqiBoard(); if (captured && captured.type === 'king') { isXqGameOver = true; if(isXqPvP) { document.getElementById('xiangqi-status').innerText = (isXqPlayerTurn ? "🎉 红方赢了！" : "🎉 黑方赢了！"); } else { document.getElementById('xiangqi-status').innerText = "🎉 你赢了！金币 +100，积分 +30"; currentUser.coins = parseInt(currentUser.coins) || 0; currentUser.coins += 100; updateScore(30); xqCoinsEl.innerText = currentUser.coins; xqScoreEl.innerText = currentUser.score; } return; } isXqPlayerTurn = !isXqPlayerTurn; if (isXqPvP) { document.getElementById('xiangqi-status').innerText = isXqPlayerTurn ? "红方走棋" : "黑方走棋"; } else { document.getElementById('xiangqi-status').innerText = "黑方思考中..."; setTimeout(xiangqiAITurn, 500); } } else { xqSelected = null; renderXiangqiBoard(); } } else { if (piece && piece.color === (isXqPlayerTurn ? 'red' : 'black')) { xqSelected = { r, c }; renderXiangqiBoard(); } } }
+    function isValidXiangqiMove(sr, sc, tr, tc) { let piece = xqBoard[sr][sc]; let target = xqBoard[tr][tc]; if (!piece) return false; if (target && target.color === piece.color) return false; let dr = tr - sr, dc = tc - sc; let absDr = Math.abs(dr), absDc = Math.abs(dc); switch(piece.type) { case 'king': return (absDr + absDc === 1) && (tc >= 3 && tc <= 5) && (piece.color === 'red' ? tr >= 7 : tr <= 2); case 'advisor': return (absDr === 1 && absDc === 1) && (tc >= 3 && tc <= 5) && (piece.color === 'red' ? tr >= 7 : tr <= 2); case 'elephant': return (absDr === 2 && absDc === 2) && (piece.color === 'red' ? tr >= 5 : tr <= 4) && isPathClear(sr, sc, tr, tc); case 'rook': return (dr === 0 || dc === 0) && isPathClear(sr, sc, tr, tc); case 'knight': if (!((absDr === 2 && absDc === 1) || (absDr === 1 && absDc === 2))) return false; let legR = sr + (absDr === 2 ? (dr > 0 ? 1 : -1) : 0); let legC = sc + (absDc === 2 ? (dc > 0 ? 1 : -1) : 0); return xqBoard[legR][legC] === null; case 'cannon': if (dr !== 0 && dc !== 0) return false; let count = 0; if (dr === 0) { for (let i = Math.min(sc, tc) + 1; i < Math.max(sc, tc); i++) if (xqBoard[sr][i]) count++; } else { for (let i = Math.min(sr, tr) + 1; i < Math.max(sr, tr); i++) if (xqBoard[i][sc]) count++; } if (target) return count === 1; else return count === 0; case 'pawn': if (piece.color === 'red') { if (sr >= 5) return dr === -1 && dc === 0; return (dr === -1 && dc === 0) || (dr === 0 && absDc === 1); } else { if (sr <= 4) return dr === 1 && dc === 0; return (dr === 1 && dc === 0) || (dr === 0 && absDc === 1); } } return false; }
+    function isPathClear(sr, sc, tr, tc) { if (sr === tr) { for (let i = Math.min(sc, tc) + 1; i < Math.max(sc, tc); i++) if (xqBoard[sr][i]) return false; } else if (sc === tc) { for (let i = Math.min(sr, tr) + 1; i < Math.max(sr, tr); i++) if (xqBoard[i][sc]) return false; } return true; }
+    function xiangqiAITurn() { if (isXqGameOver || isXqPvP) return; let bestScore = -1; let bestMove = null; let pieceValues = { 'king': 10000, 'rook': 9, 'cannon': 4.5, 'knight': 4, 'advisor': 2, 'elephant': 2, 'pawn': 1 }; for (let r = 0; r < XQ_ROWS; r++) { for (let c = 0; c < XQ_COLS; c++) { let piece = xqBoard[r][c]; if (piece && piece.color === 'black') { for (let tr = 0; tr < XQ_ROWS; tr++) { for (let tc = 0; tc < XQ_COLS; tc++) { if (isValidXiangqiMove(r, c, tr, tc)) { let target = xqBoard[tr][tc]; let score = 0; if (target) score += pieceValues[target.type] * 10; score += Math.random() * 5; if (score > bestScore) { bestScore = score; bestMove = { sr: r, sc: c, tr, tc }; } } } } } } } if (bestMove) { let captured = xqBoard[bestMove.tr][bestMove.tc]; xqBoard[bestMove.tr][bestMove.tc] = xqBoard[bestMove.sr][bestMove.sc]; xqBoard[bestMove.sr][bestMove.sc] = null; renderXiangqiBoard(); if (captured && captured.type === 'king') { isXqGameOver = true; document.getElementById('xiangqi-status').innerText = "😭 AI赢了，金币 -30，积分 -15"; currentUser.coins = parseInt(currentUser.coins) || 0; currentUser.coins -= 30; if(currentUser.coins < 0) currentUser.coins = 0; updateScore(-15); xqCoinsEl.innerText = currentUser.coins; xqScoreEl.innerText = currentUser.score; return; } } else { isXqGameOver = true; document.getElementById('xiangqi-status').innerText = "🎉 你赢了！金币 +100，积分 +30"; currentUser.coins = parseInt(currentUser.coins) || 0; currentUser.coins += 100; updateScore(30); xqCoinsEl.innerText = currentUser.coins; xqScoreEl.innerText = currentUser.score; return; } isXqPlayerTurn = true; document.getElementById('xiangqi-status').innerText = "红方走棋（你）"; }
+    function resetXiangqi() { initXiangqiBoard(); }
+
+    // ================= 井字棋 =================
+    let tttBoard = []; let isTttPlayerTurn = true; let isTttGameOver = false; let tttCoinsEl, tttScoreEl;
+    function startTicTacToe() { ['page-my', 'page-forum', 'page-friends', 'page-rank', 'page-admin', 'page-gomoku', 'page-xiangqi'].forEach(id => document.getElementById(id).classList.add('hidden')); document.getElementById('page-tictactoe').classList.remove('hidden'); document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active')); document.getElementById('page-title').innerText = "井字棋"; tttCoinsEl = document.getElementById('tttCoins'); tttScoreEl = document.getElementById('tttScore'); tttCoinsEl.innerText = currentUser.coins; tttScoreEl.innerText = currentUser.score; initTicTacToe(); }
+    function initTicTacToe() { tttBoard = ['', '', '', '', '', '', '', '', '']; isTttPlayerTurn = true; isTttGameOver = false; document.getElementById('ttt-status').innerText = "你的回合（X）"; renderTicTacToe(); }
+    function renderTicTacToe() { let container = document.getElementById('tictactoe-container'); container.innerHTML = ''; tttBoard.forEach((val, index) => { let cell = document.createElement('div'); cell.className = 'ttt-cell'; cell.innerText = val; cell.onclick = () => handleTttClick(index); container.appendChild(cell); }); }
+    function handleTttClick(index) { if (!isTttPlayerTurn || isTttGameOver || tttBoard[index] !== '') return; tttBoard[index] = 'X'; renderTicTacToe(); if (checkTttWin('X')) { isTttGameOver = true; document.getElementById('ttt-status').innerText = "🎉 你赢了！金币 +30，积分 +10"; currentUser.coins = parseInt(currentUser.coins) || 0; currentUser.coins += 30; updateScore(10); tttCoinsEl.innerText = currentUser.coins; tttScoreEl.innerText = currentUser.score; return; } if (tttBoard.every(cell => cell !== '')) { isTttGameOver = true; document.getElementById('ttt-status').innerText = "平局！"; return; } isTttPlayerTurn = false; document.getElementById('ttt-status').innerText = "AI 思考中..."; setTimeout(tttAITurn, 400); }
+    function tttAITurn() { if (isTttGameOver) return; let emptyCells = tttBoard.map((val, idx) => val === '' ? idx : null).filter(val => val !== null); if (emptyCells.length === 0) return; let bestMove = emptyCells[0]; for (let i of emptyCells) { tttBoard[i] = 'O'; if (checkTttWin('O')) { bestMove = i; tttBoard[i] = ''; break; } tttBoard[i] = ''; } if (bestMove === emptyCells[0]) { for (let i of emptyCells) { tttBoard[i] = 'X'; if (checkTttWin('X')) { bestMove = i; tttBoard[i] = ''; break; } tttBoard[i] = ''; } } if (bestMove === emptyCells[0]) { let center = emptyCells.indexOf(4); if (center !== -1) bestMove = 4; } tttBoard[bestMove] = 'O'; renderTicTacToe(); if (checkTttWin('O')) { isTttGameOver = true; document.getElementById('ttt-status').innerText = "😭 AI赢了，金币 -10，积分 -5"; currentUser.coins = parseInt(currentUser.coins) || 0; currentUser.coins -= 10; if(currentUser.coins < 0) currentUser.coins = 0; updateScore(-5); tttCoinsEl.innerText = currentUser.coins; tttScoreEl.innerText = currentUser.score; return; } if (tttBoard.every(cell => cell !== '')) { isTttGameOver = true; document.getElementById('ttt-status').innerText = "平局！"; return; } isTttPlayerTurn = true; document.getElementById('ttt-status').innerText = "你的回合（X）"; }
+    function checkTttWin(player) { const winPatterns = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; return winPatterns.some(pattern => pattern.every(index => tttBoard[index] === player)); }
+    function resetTicTacToe() { initTicTacToe(); }
+
+    // ================= 导出全局函数 =================
+    window.switchTab = switchTab; window.handleLogin = handleLogin; window.handleRegister = handleRegister; window.logout = logout; window.switchNav = switchNav; window.uploadAvatar = uploadAvatar; window.uploadPostImage = uploadPostImage; window.uploadPostVideo = uploadPostVideo; window.createPost = createPost; window.toggleLike = toggleLike; window.toggleComment = toggleComment; window.addComment = addComment; window.rewardPost = rewardPost; window.switchFriendTab = switchFriendTab; window.searchFriend = searchFriend; window.sendFriendRequest = sendFriendRequest; window.acceptFriendRequest = acceptFriendRequest; window.openChat = openChat; window.closeChat = closeChat; window.sendMessage = sendMessage; window.startGomoku = startGomoku; window.resetGomoku = resetGomoku; window.startXiangqi = startXiangqi; window.resetXiangqi = resetXiangqi; window.startTicTacToe = startTicTacToe; window.resetTicTacToe = resetTicTacToe;
+    window.switchAdminTab = switchAdminTab; window.renderAdminUsers = renderAdminUsers; window.adminAddCoins = adminAddCoins; window.generateCode = generateCode; window.renderCodes = renderCodes; window.sendGlobalMail = sendGlobalMail; window.reportPost = reportPost; window.renderReports = renderReports;
+    window.showSettings = showSettings; window.showMailbox = showMailbox; window.showModal = showModal; window.closeModal = closeModal; window.redeemCode = redeemCode; window.changePassword = changePassword; window.showForgotPassword = showForgotPassword; window.resetPassword = resetPassword;
+    window.toggleGomokuPvP = toggleGomokuPvP; window.toggleXiangqiPvP = toggleXiangqiPvP;
+    window.showGameModeModal = showGameModeModal; window.startGameWithMode = startGameWithMode; window.createRoom = createRoom; window.joinRoom = joinRoom; window.startRoomGame = startRoomGame;
+</script>
+</body>
+</html>

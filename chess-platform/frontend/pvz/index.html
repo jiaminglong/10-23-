@@ -1,0 +1,390 @@
+﻿<html>
+<head>
+    <title>植物大战僵尸</title>
+    <script src="builda-sdk.js"></script>
+    <script>
+    (function () {
+        function ready() {
+            try { window.Builda && Builda.runtime && Builda.runtime.ready(); } catch (e) {}
+        }
+        ready();
+        var appVisible = true, pausePanel = false, pausedByHost = false;
+        function syncPause() {
+            var should = !appVisible || pausePanel;
+            try {
+                if (should && !pausedByHost && typeof PauseGame === "function" && typeof oSym !== "undefined" && oSym.Timer) {
+                    PauseGame($("dMenu0"), 1);
+                    pausedByHost = true;
+                } else if (!should && pausedByHost && typeof ResetGame === "function") {
+                    ResetGame($("dMenu0"));
+                    pausedByHost = false;
+                }
+            } catch (e) {}
+        }
+        function bind() {
+            if (!window.Builda || !Builda.events) return;
+            Builda.events.on("appVisibility", function (p) { appVisible = !!(p && p.visible); syncPause(); });
+            Builda.events.on("pausePanel", function (p) { pausePanel = !!(p && p.visible); syncPause(); });
+        }
+        bind();
+        window.addEventListener("load", bind);
+    })();
+    </script>
+    <link rel="stylesheet" href="UI.css">
+    <body id="dBody" topmargin="0" leftmargin="0" oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+</head>
+<body>
+   <div id="preloader">
+	    <div id="status" class="WindowFrame"></div>
+    </div>
+    <script src="js/Cfunction.js"></script>
+    <script src="js/Welcome.js"></script>
+    <script src="js/builda-bridge.js"></script>
+    <link rel="stylesheet" href="builda-bridge.css">
+    <div id="dFlagMeter">
+	<div id="dFlagMeterTitle"><div id="dFlagMeterTitleB"></div><div id="sFlagMeterTitleF"></div></div>
+	<div id="dFlagMeterContent">
+		<img id="imgFlagMeterEmpty" src="images/interface/FlagMeterEmpty.png">
+		<img id="imgFlagMeterFull" src="images/interface/FlagMeterFull.png">
+		<img class="flag" id="imgFlag1" src="images/interface/FlagMeterParts2.png">
+		<img class="flag" id="imgFlag2" src="images/interface/FlagMeterParts2.png">
+		<img class="flag" id="imgFlag3" src="images/interface/FlagMeterParts2.png">
+		<img class="flag" id="imgFlag4" src="images/interface/FlagMeterParts2.png">
+		<img id="imgGQJC" src="images/interface/FlagMeterLevelProgress.png">
+		<img id="imgFlagHead" src="images/interface/FlagMeterParts1.png">
+	</div>
+    </div>
+    <div id="dSurface" class="WindowFrame">
+	<div id="iSurfaceBackground">
+		<map name="FPMap0">
+			<script>
+			(function(){
+				var s="",ar=[{c:'850,10,898,48',k:'ShowOptions()'},{c:'8,8,58,48',k:'SetNone($(\'dSurface\'));PlayAudio(\'tap\')'}];
+				for(var i=0;i<ar.length;i++)s+='<area href="javascript:;" shape="rect" coords="'+ar[i].c+'" onclick="'+ar[i].k+'">';document.write(s);
+			})()
+			</script>
+		</map>
+		<img src="images/interface/MainMenu.png" usemap="#FPMap0" border="0">
+		<div class="adventure0" id="dAdventure" onmouseover="this.style.backgroundPosition='bottom';" onmouseout="this.style.backgroundPosition='top'" onclick="StartAdventure()"><span id="advPrgA">0</span><span id="advPrgB">0</span></div>
+		<div class="mini" onmouseover="this.style.backgroundPosition='bottom';" onmouseout="this.style.backgroundPosition='top'" onclick="ShowMiniGame()"><span>迷你游戏</span></div>
+		<div class="riddle" onmouseover="this.style.backgroundPosition='bottom';" onmouseout="this.style.backgroundPosition='top'" onclick="ShowRiddleGame()"><span>益智模式</span></div>
+		<div class="Sunflower_trophy"><script>document.write('<img onclick="PlayAudio(\'buttonclick\');alert(\'新植物大战僵尸js\\n原作：lonelystar\\n制作单位：江南游戏开发社\\n开发人员：PAK向日葵（程序关卡设计）疯狂阳光Bean（美术指导、设计）\\n技术帮扶：Mr_KhrisTele\\n图片、音乐版权：popcap、部分来自网络搜集\\n鸣谢&感谢：彩色奢望、15574587513sh、陈思行大王、筱岚君、56743x、徐昊、四二fourtwo以及全体在游戏开发社参加内部测试的人员\\n感谢组织：pvz2js、pvz2pak、pvz2素材吧、pvz2科研部门\')" title="制作人" alt="3" src="images/interface/Sunflower_trophy32.png">')</script></div>
+		<div class="handbook" onmouseover="this.style.backgroundPosition='bottom'" onmouseout="this.style.backgroundPosition='top'" onclick="ViewHandBook()"><span>图&nbsp;鉴</span></div>
+		<div id="ZombieHand"></div>
+		<div id="dNameDiv0">
+			<div id="dNameDiv1" onmouseover="this.style.backgroundPosition='bottom'" onmouseout="this.style.backgroundPosition='top'" onclick="ShowLoginDiv()"></div>
+			<div id="dNameDiv2"></div>
+		</div>
+	</div>
+	<div id="dPause">
+		<table border="0" width="434" cellspacing="0" cellpadding="0" height="484">
+			<tr>
+				<td width="107" height="142" valign="bottom">
+				<img border="0" src="images/interface/dialog_topleft.png" width="423" height="401"></td>
+			</tr>
+		</table>
+		<div class="list">
+			<div class="hidden" onclick="SetNone($('dSurface'),$('dPause'))"></div>
+			<div id="dPauseAD"></div>
+		</div>
+		<div class="button" onclick="ResetGame($('dMenu0'))">继续游戏</div>
+	</div>
+	<div id="dSurfaceBack">
+		<div id="dHelp" onclick="HiddenHelp()"></div>
+		<div id="dOptionsMenuback">
+			<div id="dOptionsMenu">
+				<div class="OMd0">
+					<div class="OMd1">
+						<div><input type="checkbox" id="cSilence" value="1"> <label for="cSilence" id="lSilence">静&nbsp;&nbsp; &nbsp;&nbsp;音&nbsp;&nbsp;  </label></div>
+					</div>
+				</div>
+				<div class="BigLevel button" onclick="ViewHandBook()">查看图鉴</div>
+				<div class="BigLevel button" onclick="SelectModal(oS.Lvl)">重新开始</div>
+				<div class="BigLevel button" onclick="SelectModal(0);SetBlock($('dSurface'),$('iSurfaceBackground'));">返回菜单</div>
+				<div class="BigLevel button" onclick="BuildaBridge.showShop()">阳光商店</div>
+				<div class="BigLevel button" onclick="BuildaBridge.showLeaderboard()">通关排行</div>
+				<div class="OptionsMenuButton" style="margin-top:20px" onmousedown="OptionsMenuDown(this,$('sOptionsMenu'))" onmouseup="OptionsMenuUP(this,$('sOptionsMenu'));HiddenOptions();CheckSilence($('cSilence'))"><span id="sOptionsMenu" class="OptionsMenuButtonSpan">继续游戏</span></div>
+			</div>
+<script>
+var ArLvl={1:'一',2:'二',3:'三',4:'四',5:'五',6:'六',7:'七',8:'八',9:'九',10:'十'},
+LvlList=function(BLvl,SLvl1,SLvl2){
+	var s='',startlvl=BLvl*10;
+	do{
+		s+='<span class="lvl" onclick="StartAdventure('+(startlvl+SLvl1)+')">第'+ArLvl[SLvl1]+'关</span>';
+	}while(SLvl1++<SLvl2)
+	document.write(s);
+};
+</script>
+		</div>
+		<div id="dAdvSmallContainer">
+			<div id="dWorldMap"></div>
+			<div class="button" style="position:absolute;left:795px;top:16px;z-index:3" onmouseover="this.style.backgroundPosition='bottom'" onmouseout="this.style.backgroundPosition='top'" onclick="HiddenLevel()">返回</div>
+		</div>
+		
+		<div id="dMiniSmallContainer" class="TitleSmallContainer Challenge_Background">
+			<div id="dMiniSmallTitle">中国馆 - 戴夫的中国之行</div>
+			<div id="dMini0">
+				<table cellspacing="10" width="100%">
+				<script>
+					(function(){
+						var ar=['100','初入中国','wall0.png',
+						'101','暗杀行动','wall1.png',
+						'102','夜幕降临','wall2.png',
+						'103','突出重围','wall3.png',
+						'104','古老水寨','zhi.png',
+						'105','水上运动','zhi1.png',
+						'106','坟墓村庄','bai.png',
+						'107','幽灵喧夜','bai1.png',
+						'108','火山之脚','huo.png',
+						'109','火上浇油','huo1.png',
+						'110','魔王宫殿','wang.png',
+						'111','尸群围剿','wang0.png',
+						'112','决战秦皇','wang1.png',
+						'FB','副本-关口恶战','FB.png',
+						'WJY','副本-江轶同学会晤','WJY.png'],
+						v,i=0,n,l=ar.length,s='';
+						for(n=0;n<l;n+=3){
+							i%5==0&&(s+='<tr>');
+							s+='<td height="139" valign="top" onclick="SelectModal(\''+ar[n]+'\')"><div><img src="images/interface/'+ar[n+2]+'"></div><div class="list">'+ar[n+1]+'</div></td>';
+							(i+1)%5==0?(
+								s+='</tr>',
+								i=0
+							):++i;
+						}
+						if(i!=0){
+							while(--i)s+='<td>　</td>';
+							s+='</tr>';
+						}
+						document.write(s)
+					})()
+				</script>
+				</table>
+				<div class="button" onmouseover="this.style.backgroundPosition='bottom'" onmouseout="this.style.backgroundPosition='top'"  onclick="HiddenMiniGame()">关闭</div>
+			</div>
+		</div>
+</div>
+		<div id="dRiddleSmallContainer" class="TitleSmallContainer Challenge_Background">
+			<div id="dMiniSmallTitle">迷 你 游 戏</div>
+			<div id="dMini0">
+				<table cellspacing="10" width="100%">
+				<script>
+					(function(){
+						var ar=['NutBowling','坚果保龄球 ','baolingqiu.png',
+						'GuanXin','观星','GuanXin.png',
+						'yy','以牙还牙','yy.png',
+						'ZombieGames','僵尸运动会','woxinfeixiang.png',
+						'yicixingxiaofei','一次性消费','yicixingxiaofei.gif',
+						'kaotianchifan','靠天吃饭','kaotianchifan.png',
+						'pinjizhidi','三路防守','pinjizhidi.png',
+					                'bpsyc','玩偶匣市场','bpsyc.png',
+						'fmdzz','三列防部','fmdzz.png',
+						'ydbs','一朵不少','ten.png',
+						'KongXi','空袭','KongXi.png',
+						'YXZZ','隐形战役','YXZZ.png',
+						'xjsdmf','小僵尸大麻烦','sm.png',
+						'QRWX','全日无休','QRWX.png',
+                                                                                                '150','常青之塔','mota.png'],
+						v,i=0,n,l=ar.length,s='';
+						for(n=0;n<l;n+=3){
+							i%5==0&&(s+='<tr>');
+							s+='<td height="139" valign="top" onclick="SelectModal(\''+ar[n]+'\')"><div><img src="images/interface/'+ar[n+2]+'"></div><div class="list">'+ar[n+1]+'</div></td>';
+							(i+1)%5==0?(
+								s+='</tr>',
+								i=0
+							):++i;
+						}
+						if(i!=0){
+							while(--i)s+='<td>　</td>';
+							s+='</tr>';
+						}
+						document.write(s)
+					})()
+				</script>
+				</table>
+				<div class="button" onmouseover="this.style.backgroundPosition='bottom'" onmouseout="this.style.backgroundPosition='top'"  onclick="HiddenMiniGame()">关闭</div>
+				</div>
+
+			<!--单机界面已作废，无特殊请勿乱动-->
+			<div id="dRiddle0">
+				<div class="button" onmouseover="this.style.backgroundPosition='bottom'" onmouseout="this.style.backgroundPosition='top'"  onclick="ReturnRiddleInx()">益智模式索引</div>
+			</div>
+			<!--对战界面已作废，无特殊请勿乱动-->
+			<div id="dRiddle1">
+				<div style="position:relative;width:94%;font-size:12px;margin-top:10px;margin-left:auto;margin-right:auto;color:#000">
+					<button class="jhp" style="height:23px" onclick="window.frames['fRiddleAlreadyCreateGame'].SearchLvl(0)">所有游戏</button> 
+					<button class="jhp" style="height:23px" onclick="window.frames['fRiddleAlreadyCreateGame'].SearchLvl(1)">我创建的</button> 
+					<button class="jhp" style="height:23px" onclick="window.frames['fRiddleAlreadyCreateGame'].SearchLvl(2)">我玩过的</button>&nbsp;&nbsp;&nbsp;
+					<input type=text id="tRiddleID" size="1"><button class="jhp" style="height:23px" onclick="window.frames['fRiddleAlreadyCreateGame'].SearchLvl(3,$('tRiddleID').value)">序号查询</button>&nbsp;&nbsp;&nbsp;
+					<input type=text id="tRiddleUserName" size="3"><button class="jhp" style="height:23px" onclick="window.frames['fRiddleAlreadyCreateGame'].SearchLvl(4,$('tRiddleUserName').value)">创建人查询</button>&nbsp;&nbsp;&nbsp;
+					<input type=text id="tRiddleTitle" size="3"><button class="jhp" style="height:23px" onclick="window.frames['fRiddleAlreadyCreateGame'].SearchLvl(5,$('tRiddleTitle').value)">标题查询</button>
+					<div style="border:1px solid #000;height:440px;width:100%;background:#fafafa">
+						<iframe name="fRiddleAlreadyCreateGame" id="fRiddleAlreadyCreateGame" marginwidth="1" marginheight="1" height="100%" width="100%" scrolling="no" border="0" frameborder="0"></iframe>
+					</div>
+				</div>
+				<div class="button" onmouseover="this.style.backgroundPosition='bottom'" onmouseout="this.style.backgroundPosition='top'"  onclick="ReturnRiddleInx()">叛逆模式索引</div>
+				<div class="button" style="left:220px" onmouseover="this.style.backgroundPosition='bottom'" onmouseout="this.style.backgroundPosition='top'"  onclick="if($User.Visitor.UserName!='游客'||confirm('游客只能体验创建功能无法存档\n请使用注册用户以保存你的创意！'))SelectModal('ImZombieCreateGame')">创建新的关卡</div>
+			</div>
+			<div id="dRiddleClose" onmouseover="this.style.backgroundPosition='bottom'" onmouseout="this.style.backgroundPosition='top'" onclick="HiddenRiddleGame()">关 闭&nbsp;</div>				
+		</div>
+	</div>
+    </div>
+    <div class="WindowFrame" id="dAll">
+	<div id="tGround"></div>
+	<div id="dCardList"></div>
+	<div id="dZombie"></div>
+	<div id="bShowHandBook" onmouseover="this.style.backgroundPosition='bottom'" onmouseout="this.style.backgroundPosition='top'" onclick="ViewHandBook()">图 鉴&nbsp;</div>
+	<div id="dSelectCard">
+		<div class="title"></div>
+		<div id="dPCard"></div>
+		<div class="bTitle">
+			<input class="button" onclick="ResetSelectCard()" type="button" value="重选" name="btnReset" id="btnReset" style="color:#FC6">
+			<input class="button" onclick="oS.ScrollBack(LetsGO)" type="button" value="" disabled="disabled" name="btnOK" id="btnOK" style="color:#888">
+		</div>
+	</div>
+	<div id="dTop">
+		<div id="dSunNum">
+			<span id="sSunNum"></span>
+		</div>
+		<div id="tdShovel">
+			<img id="imgShovel" src="images/interface/Shovel/0.gif" onmousedown="ChoseShovel(event)">
+		</div>
+	</div>
+	<div id="bld-addsun" onclick="BuildaBridge.addBankSun()">+阳光</div>
+	<div id="dPZ"></div>
+    </div>
+    <div id="dMenu">
+	<div id="dMenu0" class="Menu"></div>
+	<div id="dMenu1" class="Menu" onclick="ClickMenu()">菜 单</div>
+    </div>
+    <div id="dHandBook" class="WindowFrame">
+	<div class="title">图鉴——索引</div>
+	<div class="content">
+		<div>
+			<img border="0" src="images/Plants/SunFlower/0.gif" width="73" height="74"><br>
+			<input class="button" type="button" value="查看植物" name="btnViewPlant" id="btnViewPlant" onclick="InitHandBookPCard()">
+		</div>
+		<div style="left:50%;padding-top:95px">
+			<img border="0" src="images/Zombies/Zombie/0.gif" width="149" height="130"><br>
+			<input class="button" type="button" value="查看僵尸" name="btnViewZombie" id="btnViewZombie" onclick="InitHandBookZCard()">
+		</div>
+	</div>
+	<div class="close" onmouseover="this.style.backgroundPosition='bottom'" onmouseout="this.style.backgroundPosition='top'" onclick="CloseHandBook()">关 闭&nbsp;</div>
+    </div>
+    <div id="dHandBookPZ" class="WindowFrame Almanac_PlantBack">
+	<div id="dHandBookP">
+		<div class="title">图鉴——植物</div>
+		<div id="dHandBookPCard"></div>
+		<div id="pPlantBack"></div>
+		<div class="list">
+			<div id="pHandBookPlant"></div>
+			<div id="dHandBookPlantName"></div>
+			<div id="dProducePlant"></div>
+			<div class="cost_cool">
+				<span class="cost">花费:</span><span id="spSunNum"></span><span class="cool">冷却:</span><span id="spCoolTime"></span>
+			</div>
+		</div>
+	</div>
+	<div id="dHandBookZ">
+		<div class="title">图鉴——僵尸</div>
+		<div id="dHandBookZCard"></div>
+		<div id="pZombieBack"></div>
+		<div class="list">
+			<div id="pHandBookZombie"></div>
+			<div id="dHandBookZombieName"></div>
+			<div id="dProduceZombie"></div>
+		</div>
+	</div>
+	<div class="dButton">
+		<div class="button1" onmouseover="this.style.backgroundPosition='bottom'" onmouseout="this.style.backgroundPosition='top'" onclick="ReturnHandBookInx()">图鉴索引</div>
+		<div class="button2" onmouseover="this.style.backgroundPosition='bottom'" onmouseout="this.style.backgroundPosition='top'" onclick="CloseHandBook()">关 闭&nbsp;</div>
+	</div>
+    </div>
+    <div id="dNewPlant">
+	<div id="dNewPlantTitle">你获得了一棵新的植物！</div>
+	<div class="card">
+		<img id="iNewPlantCard" border="0">
+	</div>
+	<br>
+	<div id="dNewPlantName"></div>
+	<br><br><br>
+	<div id="dNewPlantTooltip"></div>
+	<br><br><br><br><br><br>
+	<input type="button" value="下一关！" name="btnNextLevel" id="btnNextLevel">
+    </div>
+    <div id="dProcess">
+	<input class="button" type="button" value="关闭" onclick="SetHidden($('dProcess'))">
+	<script>document.write('<a style="margin-left:50px;cursor:pointer;color:#FF0;font-size:15px;text-decoration:none;font-weight:bold" target="_blank" ></a>');</script>
+    </div>
+    <div id="bld-shop" class="bld-overlay" style="display:none">
+        <div class="bld-panel">
+            <div class="bld-title">阳光商店</div>
+            <div class="bld-shop-bank">阳光银行余额：<span id="bld-bank-sun">0</span></div>
+            <div class="bld-shop-items">
+                <div class="bld-shop-item" onclick="BuildaBridge.buySun('sun_small')">
+                    <div class="bld-shop-name">500阳光</div>
+                    <div class="bld-shop-price">100 G币</div>
+                </div>
+                <div class="bld-shop-item" onclick="BuildaBridge.buySun('sun_medium')">
+                    <div class="bld-shop-name">2000阳光</div>
+                    <div class="bld-shop-price">300 G币</div>
+                </div>
+                <div class="bld-shop-item" onclick="BuildaBridge.buySun('sun_large')">
+                    <div class="bld-shop-name">8000阳光</div>
+                    <div class="bld-shop-price">1000 G币</div>
+                </div>
+            </div>
+            <div class="bld-tip">购买的阳光存入银行，进入关卡时自动加入。游戏中点击"+阳光"按钮可补充。</div>
+            <div class="bld-close" onclick="BuildaBridge.hideShop()">关闭</div>
+        </div>
+    </div>
+    <div id="bld-rank" class="bld-overlay" style="display:none">
+        <div class="bld-panel">
+            <div class="bld-title">通关排行榜</div>
+            <div id="bld-rank-list"></div>
+            <div id="bld-rank-self"></div>
+            <div class="bld-close" onclick="BuildaBridge.hideLeaderboard()">关闭</div>
+        </div>
+    </div>
+    <div id="bld-dev-btn" style="display:none" onclick="BuildaBridge.toggleDev()">开发者</div>
+    <div id="bld-dev" class="bld-overlay" style="display:none">
+        <div class="bld-panel">
+            <div class="bld-title">开发者工具</div>
+            <div class="bld-dev-body">
+                <div class="bld-dev-row">
+                    <div class="bld-dev-btn" onclick="BuildaBridge.devAddSun(100)">+100 阳光</div>
+                    <div class="bld-dev-btn" onclick="BuildaBridge.devAddSun(1000)">+1000 阳光</div>
+                </div>
+                <div class="bld-dev-row">
+                    <div class="bld-dev-btn bld-dev-sw" id="bld-dev-inf" onclick="BuildaBridge.devToggleInfinite()">无限阳光：关</div>
+                    <div class="bld-dev-btn bld-dev-sw" id="bld-dev-cd" onclick="BuildaBridge.devToggleNoCooldown()">无冷却：关</div>
+                </div>
+                <div class="bld-dev-row">
+                    <span class="bld-dev-label">游戏倍数</span>
+                    <div class="bld-dev-btn bld-dev-mult" data-speed="1" onclick="BuildaBridge.devSetSpeed(1)">1x</div>
+                    <div class="bld-dev-btn bld-dev-mult" data-speed="2" onclick="BuildaBridge.devSetSpeed(2)">2x</div>
+                    <div class="bld-dev-btn bld-dev-mult" data-speed="5" onclick="BuildaBridge.devSetSpeed(5)">5x</div>
+                    <div class="bld-dev-btn bld-dev-mult" data-speed="10" onclick="BuildaBridge.devSetSpeed(10)">10x</div>
+                </div>
+                <div class="bld-dev-row">
+                    <span class="bld-dev-label">选择关卡</span>
+                    <select id="bld-dev-lvl" class="bld-dev-input bld-dev-lvl" onchange="BuildaBridge.devJumpLevel()"></select>
+                </div>
+                <div class="bld-tip">仅开发者可用，普通玩家不显示入口</div>
+            </div>
+            <div class="bld-close" onclick="BuildaBridge.hideDev()">关闭</div>
+        </div>
+    </div>
+    <script>
+    oS.AutoSun=0;
+    $User.Client.PC&&$User.HTTP?(
+	    (oS.Silence=Math.floor(getCookie('JSPVZSilence')))&&($('cSilence').checked=true)
+    ):(	    oS.Silence=0,$('cSilence').checked=false);
+    InitGame();
+    </script>
+    <script  src="js/CPlants.js"></script>
+    <script  src="js/CZombie.js"></script>
+</body>
+</html>
